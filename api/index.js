@@ -4,7 +4,7 @@ const main = () => {
   const app = express()
 
   app.get('/hello', (req, res) => {
-    return res.json({ message: 'Hello World' })
+    return res.json({ message: 'Hello World!' })
   })
 
   app.listen(3000, () => {
