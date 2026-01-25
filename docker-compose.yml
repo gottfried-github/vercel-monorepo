@@ -29,6 +29,9 @@ services:
     build:
       context: ./api
       dockerfile: ./Dockerfile.prisma-studio
+    depends_on:
+      db:
+        condition: service_healthy
     ports:
       - 51212:51212
 

@@ -1,27 +1,17 @@
 import express from 'express'
+import { setGlobalOptions } from 'express-zod-safe'
 
-import { Prisma, PrismaClient } from './generated/prisma/client'
-import { PrismaPg } from '@prisma/adapter-pg'
-
-const pool = new PrismaPg({ connectionString: process.env.DATABASE_URL! })
-const prisma = new PrismaClient({ adapter: pool })
-
-let count = 0
+import { globalErrorHandler, zodDefaultErrorHandler } from './src/middleware/common/errors'
+import boardsRouter from './src/routers/boards'
 
 const main = async () => {
   const app = express()
 
-  app.get('/hello', async (req, res) => {
-    const createRes = await prisma.board.create({
-      data: {
-        name: `Board #${count}`,
-      },
-    })
+  setGlobalOptions({ handler: zodDefaultErrorHandler })
 
-    count++
-
-    return res.json({ message: 'Hello World!', data: createRes })
-  })
+  app.use(express.json())
+  app.use('/boards', boardsRouter)
+  app.use(globalErrorHandler)
 
   app.listen(3000, () => {
     console.log('listening on port 3000')
