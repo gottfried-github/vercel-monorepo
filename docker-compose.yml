@@ -1,0 +1,74 @@
+services:
+  db:
+    container_name: incode-todo_postgres
+    image: postgres:18.0-trixie
+    restart: always
+    environment:
+      # the same as DATABASE_PASSWORD in .env
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      # same as DATABASE_NAME in .env
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - incode-todo_postgres:/var/lib/postgresql
+    ports:
+      - 5432:5432
+    healthcheck:
+      test: ["CMD", "pg_isready"]
+
+  pgadmin:
+    container_name: incode-todo_pgadmin
+    image: dpage/pgadmin4:9.10
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+    ports:
+      - 5050:80
+
+  studio:
+    container_name: incode-todo_studio
+    build:
+      context: ./api
+      dockerfile: ./Dockerfile.prisma-studio
+    ports:
+      - 51212:51212
+
+  api:
+    container_name: incode-todo_api
+    build:
+      context: ./api
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - 3000:3000
+    volumes:
+      - type: bind
+        source: ./api/index.ts
+        target: /usr/src/app/index.ts
+      - type: bind
+        source: ./api/src
+        target: /usr/src/app/src
+      # - type: bind
+      #   source: ./api/prisma
+      #   target: /usr/src/app/prisma
+      # - type: bind
+      #   source: ./api/generated
+      #   target: /usr/src/app/generated
+
+  app:
+    container_name: incode-todo_app
+    build:
+      context: ./app
+    # ideally, this should depend on api
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - 3001:3000
+    volumes:
+      # - ./.next:/usr/src/app/.next
+      - ./app/public:/usr/src/app/public
+      - ./app/src:/usr/src/app/src
+
+volumes:
+  incode-todo_postgres:

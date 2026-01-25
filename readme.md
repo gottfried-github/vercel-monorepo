@@ -1,23 +1,64 @@
+# Deploying and connecting to the production database
+
+I ended up doing the following:
+
+- create a project in a Prisma Postgres account
+- get database url from there, in the project's `Dashboard/Connect/Generate new connection string`. You should save this connection string somewhere you can get it later from, because Prisma doesn't give you access to that string after you refresh the page.
+- in the local project's directory, set up everything for a prisma project (see, e.g., [`2`]), then run `npx prisma init --output ../generated/prisma`, without any other options. This will generate `./prisma/schema.prisma` with the `postgresql` datasource provider, which is what we need.
+- in the project's `.env`, set `DATABASE_URL` to the database url you got from Prisma Postgres project in a previous step
+- then, you can run, e.g., `prisma migrate deploy` or generate a client and make queries with it, and it will run against your production database
+
 # Deploy the monorepo to Vercel
 
 Follow instructions in [`1`].
 
-When importing the monorepo and choosing the subdirectory for a project, don't fogret to select the framework - Express for `./api` and Next.js for `./app` - for some reason, it doesn't automatically detect the framework (at least, for the Express part). Alternatively, you can select the framework after importing, in the project's Settings - after that, you have to redeploy.
+The general workflow is as follows. Create a project for each subdirectory in the monorepo, by importing the monorepo from GitHub and choosing the appropriate root directory. I.e., create a project for `./api` and for `./app`. When importing, select the framework - Express for `./api` and Next.js for `./app` - for some reason, Vercel doesn't automatically detect it (at least, I experienced this for `./api`). Alternatively, you can select the framework after importing, in project Settings (you will have to redeploy after that).
 
-First, import `./api`. Then, get it's deployment url, e.g., `https://vercel-monorepo-plum.vercel.app`.
+Here's a more detailed instruction:
 
-Then, when importing `./app`, add this url as the `API_URL` environment variable.
+- create a project for `./api`; in that project,
+  - add the `DATABASE_URL` environment variable, pointing to the production database;
+  - add `VERCEL_EXPERIMENTAL_BACKENDS=1` environment variable. This makes Vercel work with relative imports that don't feature explicit extensions. I need this because `prisma generate` generates code that uses this approach.
+  - get the project's deployment url, e.g., `https://vercel-monorepo-plum.vercel.app`
+- create a project for `./app`;
+  - add the deployment url from the previous step as `API_URL` environment variable in this project (now, Next.js in `./app` can talk to `./api` - it uses `API_URL` as the base url for requests to the API);
+- locally, in the root dir (i.e., where this readme is located), run: `vercel link --repo`. This will create `.vercel` directory here.
+- to deploy the latest code which hasn't yet been pushed to the repo (in that case it will be deployed automatically, from the repo), inside the root directory, run `vercel --prod` - this will prompt you to choose the project (either the project you created for `./api` or for `./app`)
 
-Now, Next.js in `./app` can talk to `./api` (it uses `API_URL` as the base url for requests to the API).
+# Local deployment with Docker
 
-After importing the projects, in the root directory (i.e., where this readme is located), run:
+To run locally:
 
-`vercel link --repo`
+- add `.env`, following `.env.example`
+- set `DATABASE_URL` in `./api/.env` to the local database value - see `./api/.env.example` for an example
 
-This will create `.vercel` directory here.
+Then, run:
 
-Then, in this directory, you can run `vercel --prod`. It will prompt you to choose the project you want to deploy - the project for `./app` or for `./api`.
+`docker compose up`
+
+Access Next.js app at `localhost:3001`; express app at `localhost:3000`; prisma studio at `localhost:51212`; pgAdmin at `localhost:5050`.
+
+Access the database with `psql`, while the containers are running:
+
+`docker exec -it incode-todo_postgres psql -U postgres app`
+
+To push the latest migrations to the local database, run (after stopping/removing the containers, e.g., with `docker compose down`):
+
+`docker compose run api prisma migrate deploy`
+
+or, if needed (e.g., to create new migration files after changing the schema):
+
+`docker compose run api prisma migrate dev` or `docker compose run api prisma migrate dev --create-only` to only create the migration files but not apply them to the database.
+
+# Managing both production and local databases
+
+E.g., after you change the schema, you should do the following:
+
+- first, run `prisma migrate dev` against the local database, with `DATABASE_URL` in `./api/.env` set to the local database URL (see [Local deployment with Docker](#local-deployment-with-docker));
+- then, change `DATABASE_URL` in `./api/.env` to the production database URL and run `npx prisma migrate deploy` (which will apply the migrations, generated by the previous command to the production database)
+- then, change `DATABASE_URL` in `./api/.env` back to the local database URL
 
 # Refs
 
 1. https://vercel.com/docs/monorepos
+2. https://www.prisma.io/docs/getting-started/prisma-orm/quickstart/postgresql
