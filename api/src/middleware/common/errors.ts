@@ -1,4 +1,4 @@
-import type { NextFunction, Request, Response } from 'express'
+import type { Request, Response } from 'express'
 import type { ErrorRequestHandler } from 'express-zod-safe'
 
 import { AppError } from '../../common'
