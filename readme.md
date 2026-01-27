@@ -2,6 +2,25 @@
 
 See [Local deployment with Docker](#local-deployment-with-docker).
 
+# Stack
+
+## Back end
+
+- Express.js
+- Prisma ORM
+- Postgres
+
+## Front end
+
+- Next.js
+- Tanstack Query + Redux Toolkit
+- React Hook Form + Zod
+
+## DevOps
+
+- Docker Compose for local deployment
+- Vercel for production deployment
+
 # Deploying and connecting to the production database
 
 I ended up doing the following:
@@ -25,7 +44,7 @@ Here's a more detailed instruction:
   - add `VERCEL_EXPERIMENTAL_BACKENDS=1` environment variable. This makes Vercel work with relative imports that don't feature explicit extensions. I need this because `prisma generate` generates code that uses this approach.
   - get the project's deployment url, e.g., `https://vercel-monorepo-plum.vercel.app`
 - create a project for `./app`;
-  - add the deployment url from the previous step as `API_URL` environment variable in this project (now, Next.js in `./app` can talk to `./api` - it uses `API_URL` as the base url for requests to the API);
+  - add the deployment url from the previous step as `API_URL` and `NEXT_PUBLIC_API_URL` environment variables in this project (now, Next.js in `./app` can talk to `./api` - it uses `API_URL` as the base url for requests to the API);
 - locally, in the root dir (i.e., where this readme is located), run: `vercel link --repo`. This will create `.vercel` directory here.
 - to deploy the latest code which hasn't yet been pushed to the repo (in that case it will be deployed automatically, from the repo), inside the root directory, run `vercel --prod` - this will prompt you to choose the project (either the project you created for `./api` or for `./app`)
 
@@ -46,6 +65,8 @@ Access the database with `psql`, while the containers are running:
 
 `docker exec -it incode-todo_postgres psql -U postgres app`
 
+## Prisma migrations
+
 To push the latest migrations to the local database, run (after stopping/removing the containers, e.g., with `docker compose down`):
 
 `docker compose run api npx prisma migrate deploy`
@@ -53,6 +74,24 @@ To push the latest migrations to the local database, run (after stopping/removin
 or, if needed (e.g., to create new migration files after changing the schema):
 
 `docker compose run api npx prisma migrate dev` or `docker compose run api npx prisma migrate dev --create-only` to only create the migration files but not apply them to the database.
+
+## Rebuilding containers
+
+E.g., if you installed a new dependency in `./api` or `./app`, you will want to rebuild the corresponding container:
+
+`docker compose build --no-cache <service name>`
+
+E.g.,
+
+`docker compose build --no-cache app`
+
+## Building the Next.js app locally
+
+Run:
+
+`docker compose run -e NODE_ENV=production npm run build`
+
+Notice: I set `NODE_ENV` to `production` here because this is the standart value for `next build`.
 
 # Managing both production and local databases
 

@@ -69,9 +69,10 @@ services:
     ports:
       - 3001:3000
     volumes:
-      # - ./.next:/usr/src/app/.next
       - ./app/public:/usr/src/app/public
       - ./app/src:/usr/src/app/src
+      - ./app/next.config.ts:/usr/src/app/next.config.ts
+      # - ./.next:/usr/src/app/.next
 
 volumes:
   incode-todo_postgres:

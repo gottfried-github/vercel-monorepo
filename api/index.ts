@@ -1,6 +1,6 @@
 import express from 'express'
+import cors from 'cors'
 import { setGlobalOptions } from 'express-zod-safe'
-
 import { globalErrorHandler, zodDefaultErrorHandler } from './src/middleware/common/errors'
 import boardsRouter from './src/routers/boards'
 
@@ -10,6 +10,11 @@ const main = async () => {
   setGlobalOptions({ handler: zodDefaultErrorHandler })
 
   app.use(express.json())
+  app.use(
+    cors({
+      origin: true,
+    })
+  )
   app.use('/boards', boardsRouter)
   app.use(globalErrorHandler)
 
