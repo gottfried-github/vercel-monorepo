@@ -34,6 +34,10 @@ services:
         condition: service_healthy
     ports:
       - 51212:51212
+    volumes:
+      - type: bind
+        source: ./api/.env
+        target: /usr/src/app/.env
 
   api:
     container_name: incode-todo_api
@@ -46,14 +50,17 @@ services:
       - 3000:3000
     volumes:
       - type: bind
+        source: ./api/.env
+        target: /usr/src/app/.env
+      - type: bind
         source: ./api/index.ts
         target: /usr/src/app/index.ts
       - type: bind
         source: ./api/src
         target: /usr/src/app/src
-      # - type: bind
-      #   source: ./api/prisma
-      #   target: /usr/src/app/prisma
+      - type: bind
+        source: ./api/prisma
+        target: /usr/src/app/prisma
       # - type: bind
       #   source: ./api/generated
       #   target: /usr/src/app/generated

@@ -1,20 +1,21 @@
 import type { Response } from 'express'
 import prisma from '../../db'
-import { AppError, isPrismaError } from '../../common'
 import { type UpdateTaskRequest } from '../../middleware/tasks/update'
+import { isPrismaError, AppError } from '../../common'
+import type { TaskStatus } from '../../../generated/prisma/enums'
 
 const update = async (req: UpdateTaskRequest, res: Response) => {
   try {
-    const boardUpdated = await prisma.board.update({
+    const taskUpdated = await prisma.task.update({
       where: {
         id: req.params.id,
       },
-      data: req.body,
+      data: req.body as typeof req.body & { status: TaskStatus | undefined },
     })
 
     res.json({
       message: 'successfully updated',
-      data: boardUpdated,
+      data: taskUpdated,
     })
   } catch (e) {
     if (isPrismaError(e)) {

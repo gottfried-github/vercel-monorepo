@@ -75,6 +75,14 @@ or, if needed (e.g., to create new migration files after changing the schema):
 
 `docker compose run api npx prisma migrate dev` or `docker compose run api npx prisma migrate dev --create-only` to only create the migration files but not apply them to the database.
 
+**Note**: after changing the `./api/prisma/schema.prisma` file, you should rebuild the `api` container before starting it again, because it builds the prisma client at build stage (i.e., in the `Dockerfile`):
+
+`docker compose build --no-cache api`
+
+Also, you will want to generate a new prisma client on the host, for typescript intellisense. On the host, simply run:
+
+`npx prisma generate`
+
 ## Rebuilding containers
 
 E.g., if you installed a new dependency in `./api` or `./app`, you will want to rebuild the corresponding container:

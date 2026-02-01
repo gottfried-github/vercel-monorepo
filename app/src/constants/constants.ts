@@ -1,0 +1,11 @@
+export const ITEM_TYPES = {
+  PENDING: 'ITEM_PENDING',
+  IN_PROGRESS: 'ITEM_IN_PROGRESS',
+  DONE: 'ITEM_DONE',
+}
+
+export const TASK_STATUS = {
+  PENDING: 'PENDING',
+  IN_PROGRESS: 'IN_PROGRESS',
+  DONE: 'DONE',
+}

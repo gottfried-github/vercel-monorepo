@@ -20,15 +20,18 @@ enum TaskStatus {
 }
 
 model Board {
-  id    Int    @id @default(autoincrement())
-  name  String
-  tasks Task[]
+  id         Int      @id @default(autoincrement())
+  tasks      Task[]
+  created_at DateTime
+  name       String
 }
 
 model Task {
-  id       Int        @id @default(autoincrement())
-  board    Board      @relation(fields: [board_id], references: [id])
-  board_id Int
-  status   TaskStatus @default(PENDING)
-  order    Int
+  id          Int        @id @default(autoincrement())
+  board       Board      @relation(fields: [board_id], references: [id])
+  board_id    Int
+  status      TaskStatus @default(PENDING)
+  order       Int
+  name        String
+  description String
 }

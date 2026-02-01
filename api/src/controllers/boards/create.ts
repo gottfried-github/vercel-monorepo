@@ -8,6 +8,7 @@ const create = async (req: CreateBoardRequest, res: Response) => {
     const createRes = await prisma.board.create({
       data: {
         name: req.body.name,
+        created_at: new Date(),
       },
     })
 

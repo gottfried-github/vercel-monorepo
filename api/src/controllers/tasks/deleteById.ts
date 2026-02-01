@@ -1,20 +1,19 @@
 import type { Response } from 'express'
 import prisma from '../../db'
 import { AppError, isPrismaError } from '../../common'
-import { type UpdateTaskRequest } from '../../middleware/tasks/update'
+import { type DeleteTaskByIdRequest } from '../../middleware/tasks/deleteById'
 
-const update = async (req: UpdateTaskRequest, res: Response) => {
+const deleteById = async (req: DeleteTaskByIdRequest, res: Response) => {
   try {
-    const boardUpdated = await prisma.board.update({
+    const deleteRes = await prisma.task.delete({
       where: {
         id: req.params.id,
       },
-      data: req.body,
     })
 
     res.json({
-      message: 'successfully updated',
-      data: boardUpdated,
+      message: 'successfully deleted',
+      data: deleteRes,
     })
   } catch (e) {
     if (isPrismaError(e)) {
@@ -25,4 +24,4 @@ const update = async (req: UpdateTaskRequest, res: Response) => {
   }
 }
 
-export default update
+export default deleteById
