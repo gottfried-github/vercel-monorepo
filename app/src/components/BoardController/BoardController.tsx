@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import z from 'zod'
 import { useAppQuery } from '@/utils/data'
 import { useForm, Controller, SubmitHandler } from 'react-hook-form'
@@ -18,12 +18,22 @@ const BoardInputSchema = z.object({
 })
 
 const BoardController = () => {
-  const [boardId, setBoardId] = useState<number | null>(null)
+  const dispatch = useAppDispatch()
+
+  const [_boardId, _setBoardId] = useState<number | null>(null)
 
   const { data: board, isLoading } = useAppQuery({
-    queryKey: [...boardQueryOptions.queryKey, boardId],
+    queryKey: [...boardQueryOptions.queryKey, _boardId],
     queryFn: boardQueryOptions.queryFn,
   })
+
+  useEffect(() => {
+    if (!board) {
+      dispatch(setBoardId(null))
+    } else {
+      dispatch(setBoardId(board.id))
+    }
+  }, [dispatch, board])
 
   const { control, reset, handleSubmit } = useForm({
     defaultValues: {
@@ -35,7 +45,7 @@ const BoardController = () => {
   const _handleSubmit: SubmitHandler<z.output<typeof BoardInputSchema>> = async values => {
     console.log('_handleSubmit - values:', values)
 
-    setBoardId(values.id)
+    _setBoardId(values.id)
   }
 
   if (isLoading) return <div>Loading</div>
@@ -63,10 +73,10 @@ const BoardController = () => {
         />
         <Button className="self-end">Show Board</Button>
       </form>
-      {!board || boardId === null ? null : (
+      {!board || _boardId === null ? null : (
         <>
           <h1>{board.name}</h1>
-          <Board boardId={boardId} />
+          <Board />
         </>
       )}
     </div>

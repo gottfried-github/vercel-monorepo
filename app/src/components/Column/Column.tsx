@@ -3,7 +3,7 @@ import z from 'zod'
 import { axiosApi } from '@/utils/axios'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useAppQuery } from '@/utils/data'
-import { useAppDispatch } from '@/store/hooks'
+import { useAppSelector, useAppDispatch } from '@/store/hooks'
 import { useForm, Controller, SubmitHandler } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useDrop } from 'react-dnd'
@@ -16,20 +16,22 @@ import { Task as TaskType, DropCbInfo, ApiResponse } from '@/types'
 import { ITEM_TYPES } from '@/constants/constants'
 import { reorder } from '@/utils'
 import { setIsError } from '@/store/features/error/errorSlice'
+import { selectBoardId } from '@/store/features/board/boardSlice'
 import { tasksQueryOptions } from '@/data/tasks'
 import { TaskSchema } from '@/utils/schemas'
 import Task from '../Task/Task'
 
 interface Props {
-  boardId: number
   type: string
   disabled: boolean
   setDisabled: (disabled: boolean) => void
 }
 
-const Column = ({ boardId, type, disabled, setDisabled }: Props) => {
+const Column = ({ type, disabled, setDisabled }: Props) => {
   const queryClient = useQueryClient()
   const dispatch = useAppDispatch()
+
+  const boardId = useAppSelector(selectBoardId)
 
   const { data: tasks, isLoading } = useAppQuery({
     queryKey: [...tasksQueryOptions.queryKey, boardId, type],
@@ -270,7 +272,7 @@ const Column = ({ boardId, type, disabled, setDisabled }: Props) => {
           </CardContent>
         </Card>
         {tasks.map(task => (
-          <Task key={task.id} boardId={boardId} task={task} dropCb={dropCb} />
+          <Task key={task.id} task={task} dropCb={dropCb} />
         ))}
       </CardContent>
     </Card>

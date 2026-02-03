@@ -1,9 +1,10 @@
 import { combineSlices, configureStore } from '@reduxjs/toolkit'
 import error from './features/error/errorSlice'
+import board from './features/board/boardSlice'
 
 // `combineSlices` automatically combines the reducers using
 // their `reducerPath`s, therefore we no longer need to call `combineReducers`.
-const rootReducer = combineSlices(error)
+const rootReducer = combineSlices(error, board)
 
 // `makeStore` encapsulates the store configuration to allow
 // creating unique store instances, which is particularly important for

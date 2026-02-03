@@ -2,32 +2,33 @@ import { useState, useRef, useMemo } from 'react'
 import z from 'zod'
 import { axiosApi } from '@/utils/axios'
 import { useQueryClient, useMutation } from '@tanstack/react-query'
-import { useAppDispatch } from '@/store/hooks'
+import { useAppSelector, useAppDispatch } from '@/store/hooks'
 import { useForm, Controller, SubmitHandler } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useDrag, useDrop } from 'react-dnd'
 import { Button } from '../ui/button'
 import { Item, ItemContent, ItemTitle, ItemDescription } from '../ui/item'
-import { Field, FieldLabel, FieldError } from '../ui/field'
+import { Field, FieldError } from '../ui/field'
 import { Input } from '../ui/input'
 import { Textarea } from '../ui/textarea'
 import { ApiResponse, DropCb, Task as TaskType } from '@/types'
 import { ITEM_TYPES } from '@/constants/constants'
 import { setIsError } from '@/store/features/error/errorSlice'
+import { selectBoardId } from '@/store/features/board/boardSlice'
 import { tasksQueryOptions } from '@/data/tasks'
 import { TaskSchema } from '@/utils/schemas'
 
 interface Props {
-  boardId: number
   task: TaskType
   dropCb: DropCb
 }
 
-const Task = ({ boardId, task, dropCb }: Props) => {
+const Task = ({ task, dropCb }: Props) => {
   const queryClient = useQueryClient()
   const dispatch = useAppDispatch()
   const ref = useRef(null)
 
+  const boardId = useAppSelector(selectBoardId)
   const [isInEditMode, setIsInEditMode] = useState(false)
   const itemType = useMemo(() => `ITEM_${task.status}`, [task.status])
 
