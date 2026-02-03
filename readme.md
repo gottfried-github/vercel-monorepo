@@ -15,6 +15,7 @@ See [Local deployment with Docker](#local-deployment-with-docker).
 - Next.js
 - Tanstack Query + Redux Toolkit
 - React Hook Form + Zod
+- shadcn
 
 ## DevOps
 
