@@ -6,9 +6,13 @@ import { HTML5Backend } from 'react-dnd-html5-backend'
 import { TASK_STATUS } from '@/constants/constants'
 import Column from '../Column/Column'
 
-const boardId = 14
+// const boardId = 14
 
-const Board = () => {
+interface Props {
+  boardId: number
+}
+
+const Board = ({ boardId }: Props) => {
   const [disabled, setDisabled] = useState(false)
 
   return (

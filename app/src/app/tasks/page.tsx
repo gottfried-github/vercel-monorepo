@@ -1,7 +1,8 @@
-import Board from '@/components/Board/Board'
+import BoardController from '@/components/BoardController/BoardController'
+// import Board from '@/components/Board/Board'
 
 const TasksPage = () => {
-  return <Board />
+  return <BoardController />
 }
 
 export default TasksPage
